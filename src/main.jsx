@@ -7,8 +7,8 @@ import './i18n.js';
 // Initialize Capacitor plugins
 async function initCapacitor() {
   try {
-    const { StatusBar, Style } = await import('@capacitor/status-bar');
-    await StatusBar.setStyle({ style: Style.Dark });
+    const { StatusBar } = await import('@capacitor/status-bar');
+    await StatusBar.setStyle({ style: 'DARK' });
     await StatusBar.setBackgroundColor({ color: '#009688' });
     await StatusBar.show();
   } catch {
