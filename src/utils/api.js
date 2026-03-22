@@ -1,10 +1,3 @@
-/**
- * api.js — Android-ready API client
- * - Uses Capacitor Network plugin for reliable online detection
- * - Falls back to navigator.onLine in browser
- * - Offline queue + cache via localStorage
- */
-
 const CLOUD_URL = 'https://mycadcam-backend1-production-8b1f.up.railway.app';
 
 export const SERVER_URL = (() => {
@@ -12,7 +5,6 @@ export const SERVER_URL = (() => {
     catch { return CLOUD_URL; }
 })();
 
-// Network status
 let _isOnline = navigator.onLine;
 let _statusListeners = [];
 
@@ -23,54 +15,30 @@ export function onStatusChange(cb) {
 }
 function notifyListeners() { _statusListeners.forEach(cb => cb(_isOnline)); }
 
-// Initialize Capacitor Network plugin (best signal on Android)
-(async () => {
+window.addEventListener('online',  () => { _isOnline = true;  notifyListeners(); window.dispatchEvent(new CustomEvent('app:online')); });
+window.addEventListener('offline', () => { _isOnline = false; notifyListeners(); });
+
+// Ping server every 30s
+setInterval(async () => {
     try {
-        const { Network } = await import('@capacitor/network');
-        const status = await Network.getStatus();
-        _isOnline = status.connected;
-        notifyListeners();
+        const res = await fetch(`${SERVER_URL}/api/health`, { signal: AbortSignal.timeout(3000) });
+        const was = _isOnline; _isOnline = res.ok;
+        if (was !== _isOnline) { notifyListeners(); if (_isOnline) window.dispatchEvent(new CustomEvent('app:online')); }
+    } catch { if (_isOnline) { _isOnline = false; notifyListeners(); } }
+}, 30000);
 
-        Network.addListener('networkStatusChange', (status) => {
-            const prev = _isOnline;
-            _isOnline = status.connected;
-            if (prev !== _isOnline) {
-                notifyListeners();
-                if (_isOnline) window.dispatchEvent(new CustomEvent('app:online'));
-            }
-        });
-    } catch {
-        // Browser fallback
-        window.addEventListener('online', () => { _isOnline = true; notifyListeners(); window.dispatchEvent(new CustomEvent('app:online')); });
-        window.addEventListener('offline', () => { _isOnline = false; notifyListeners(); });
-
-        // Ping server every 15s
-        setInterval(async () => {
-            try {
-                const res = await fetch(`${SERVER_URL}/api/health`, { signal: AbortSignal.timeout(3000) });
-                const was = _isOnline;
-                _isOnline = res.ok;
-                if (was !== _isOnline) { notifyListeners(); if (_isOnline) window.dispatchEvent(new CustomEvent('app:online')); }
-            } catch { if (_isOnline) { _isOnline = false; notifyListeners(); } }
-        }, 15000);
-    }
-})();
-
-// Token helpers
 function getToken() { return localStorage.getItem('token'); }
 function buildHeaders(extra = {}) {
     const token = getToken();
     return { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}), ...extra };
 }
 
-// Cache
 const CACHE_KEYS = {
     [`${SERVER_URL}/api/patients`]: 'cache_patients',
     [`${SERVER_URL}/api/cases`]: 'cache_cases',
     [`${SERVER_URL}/api/finances`]: 'cache_transactions',
     [`${SERVER_URL}/api/restorations`]: 'cache_restorations',
 };
-
 function saveToCache(url, data) {
     const key = CACHE_KEYS[url];
     if (key) try { localStorage.setItem(key, JSON.stringify(data)); } catch {}
@@ -81,7 +49,6 @@ function loadFromCache(url) {
     try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : null; } catch { return null; }
 }
 
-// Offline queue
 function enqueueOffline(method, path, body) {
     const queue = JSON.parse(localStorage.getItem('offline_queue') || '[]');
     queue.push({ id: Date.now() + Math.random(), method, url: path, body, created_at: new Date().toISOString() });
@@ -94,8 +61,7 @@ export function clearOfflineQueue() { localStorage.removeItem('offline_queue'); 
 export async function syncOfflineQueue() {
     const queue = getOfflineQueue();
     if (!queue.length) return { synced: 0, failed: 0 };
-    const remaining = [];
-    let synced = 0;
+    const remaining = []; let synced = 0;
     for (const op of queue) {
         try {
             const opts = { method: op.method, headers: buildHeaders() };
@@ -113,10 +79,7 @@ export async function syncOfflineQueue() {
 export async function refreshAllCache() {
     const endpoints = [`${SERVER_URL}/api/patients`, `${SERVER_URL}/api/cases`, `${SERVER_URL}/api/finances`, `${SERVER_URL}/api/restorations`];
     for (const url of endpoints) {
-        try {
-            const res = await fetch(url, { headers: buildHeaders() });
-            if (res.ok) saveToCache(url, await res.json());
-        } catch {}
+        try { const res = await fetch(url, { headers: buildHeaders() }); if (res.ok) saveToCache(url, await res.json()); } catch {}
     }
 }
 
