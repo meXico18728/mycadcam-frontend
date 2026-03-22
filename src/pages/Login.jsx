@@ -3,13 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getServerUrl } from '../utils/config';
 
-async function haptic(style = 'LIGHT') {
-    try {
-        const { Haptics, ImpactStyle } = await import('@capacitor/haptics');
-        await Haptics.impact({ style: ImpactStyle[style] });
-    } catch {}
-}
-
 const Login = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [name, setName] = useState('');
@@ -20,45 +13,22 @@ const Login = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [successMsg, setSuccessMsg] = useState('');
-
     const { login } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
-        setLoading(true);
-        await haptic('MEDIUM');
-
-        const url = isLogin
-            ? `${getServerUrl()}/api/auth/login`
-            : `${getServerUrl()}/api/auth/register`;
-        const payload = isLogin
-            ? { emailOrPhone, password }
-            : { name, emailOrPhone, password, role };
-
+        setError(''); setLoading(true);
+        const url = isLogin ? `${getServerUrl()}/api/auth/login` : `${getServerUrl()}/api/auth/register`;
+        const payload = isLogin ? { emailOrPhone, password } : { name, emailOrPhone, password, role };
         try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Ошибка');
-            if (isLogin) {
-                login(data.user, data.token);
-                navigate('/dashboard');
-            } else {
-                setIsLogin(true);
-                setSuccessMsg('Регистрация успешна! Теперь можно войти.');
-                setPassword('');
-            }
-        } catch (err) {
-            await haptic('HEAVY');
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
+            const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Ошибка');
+            if (isLogin) { login(data.user, data.token); navigate('/dashboard'); }
+            else { setIsLogin(true); setSuccessMsg('Регистрация успешна! Войдите.'); setPassword(''); }
+        } catch (err) { setError(err.message); }
+        finally { setLoading(false); }
     };
 
     return (
@@ -66,17 +36,17 @@ const Login = () => {
             <div className="login-card">
                 <div className="login-logo">
                     <div className="login-logo-icon">🦷</div>
-                    <h1>MyCadCam</h1>
-                    <p>{isLogin ? 'Вход в систему' : 'Регистрация'}</p>
+                    <h1>MyCadCam Lab</h1>
+                    <p>{isLogin ? 'Вход в систему' : 'Регистрация нового пользователя'}</p>
                 </div>
 
                 {error && (
-                    <div style={{ background: 'rgba(239,68,68,0.1)', color: '#dc2626', padding: '0.75rem 1rem', borderRadius: '10px', marginBottom: '1rem', fontSize: '0.9rem', border: '1px solid rgba(239,68,68,0.2)' }}>
+                    <div style={{ background: 'rgba(239,68,68,0.08)', color: '#dc2626', padding: '0.65rem 1rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.875rem', border: '1px solid rgba(239,68,68,0.15)' }}>
                         ⚠️ {error}
                     </div>
                 )}
                 {successMsg && (
-                    <div style={{ background: 'rgba(16,185,129,0.1)', color: '#059669', padding: '0.75rem 1rem', borderRadius: '10px', marginBottom: '1rem', fontSize: '0.9rem', border: '1px solid rgba(16,185,129,0.2)' }}>
+                    <div style={{ background: 'rgba(16,185,129,0.08)', color: '#059669', padding: '0.65rem 1rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.875rem', border: '1px solid rgba(16,185,129,0.15)' }}>
                         ✅ {successMsg}
                     </div>
                 )}
@@ -86,8 +56,7 @@ const Login = () => {
                         <>
                             <div className="input-group">
                                 <label className="input-label">ФИО</label>
-                                <input type="text" className="input-field" placeholder="Иванов Иван Иванович"
-                                    value={name} onChange={e => setName(e.target.value)} required />
+                                <input type="text" className="input-field" placeholder="Иванов Иван Иванович" value={name} onChange={e => setName(e.target.value)} required />
                             </div>
                             <div className="input-group">
                                 <label className="input-label">Роль</label>
@@ -100,41 +69,27 @@ const Login = () => {
                             </div>
                         </>
                     )}
-
                     <div className="input-group">
                         <label className="input-label">Телефон / Email</label>
-                        <input type="text" className="input-field" placeholder="+998 99 123 45 67"
-                            value={emailOrPhone} onChange={e => setEmailOrPhone(e.target.value)}
-                            autoComplete="username" inputMode="tel" required />
+                        <input type="text" className="input-field" placeholder="+998 99 123 45 67" value={emailOrPhone} onChange={e => setEmailOrPhone(e.target.value)} autoComplete="username" required />
                     </div>
-
                     <div className="input-group" style={{ marginBottom: '1.5rem' }}>
                         <label className="input-label">Пароль</label>
                         <div style={{ position: 'relative' }}>
-                            <input
-                                type={showPass ? 'text' : 'password'}
-                                className="input-field"
-                                placeholder="••••••••"
-                                value={password}
-                                onChange={e => setPassword(e.target.value)}
-                                autoComplete={isLogin ? 'current-password' : 'new-password'}
-                                required
-                                style={{ paddingRight: '3rem' }}
-                            />
+                            <input type={showPass ? 'text' : 'password'} className="input-field" placeholder="••••••••"
+                                value={password} onChange={e => setPassword(e.target.value)} style={{ paddingRight: '2.5rem' }} required />
                             <button type="button" onClick={() => setShowPass(p => !p)}
-                                style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem', color: 'var(--text-muted)', minHeight: 44, minWidth: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                style={{ position: 'absolute', right: '0.6rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
                                 {showPass ? '🙈' : '👁️'}
                             </button>
                         </div>
                     </div>
-
-                    <button type="submit" className="btn btn-primary w-full" disabled={loading}
-                        style={{ width: '100%', fontSize: '1rem', height: '52px', borderRadius: '12px', marginBottom: '0.75rem' }}>
+                    <button type="submit" className="btn btn-primary" disabled={loading}
+                        style={{ width: '100%', height: '40px', fontSize: '0.9rem', marginBottom: '0.75rem' }}>
                         {loading ? '⏳ Загрузка...' : isLogin ? '🔑 Войти' : '✅ Зарегистрироваться'}
                     </button>
-
                     <button type="button" onClick={() => { setIsLogin(!isLogin); setError(''); setSuccessMsg(''); }}
-                        style={{ width: '100%', background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.9rem', padding: '0.75rem', cursor: 'pointer', fontWeight: 500 }}>
+                        style={{ width: '100%', background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.875rem', cursor: 'pointer', padding: '0.5rem' }}>
                         {isLogin ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти'}
                     </button>
                 </form>
@@ -142,5 +97,4 @@ const Login = () => {
         </div>
     );
 };
-
 export default Login;

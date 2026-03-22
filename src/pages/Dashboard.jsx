@@ -126,7 +126,7 @@ const Dashboard = () => {
             </div>
 
             {/* KPI CARDS */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
                 <div className="card" style={{ borderTop: '4px solid var(--primary)', textAlign: 'center', padding: '1.5rem' }}>
                     <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🆕</div>
                     <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '0.25rem' }}>{t('dashboard.newCases')}</div>

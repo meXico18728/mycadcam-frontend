@@ -316,8 +316,8 @@ const Cases = () => {
 
             {/* CREATE MODAL */}
             {showCreateModal && (
-                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 500 }}>
-                    <div className="modal-sheet" style={{ width: '100%', maxWidth: '800px' }}>
+                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 500, padding: '2rem' }}>
+                    <div className="modal-card" style={{ width: '100%', maxWidth: '800px', padding: '1.5rem' }}>
                         <h3 style={{ marginBottom: '1.5rem' }}>{t('cases.newOrder')}</h3>
                         {error && <div style={{ color: 'var(--danger)', marginBottom: '1rem', padding: '0.5rem', backgroundColor: 'rgba(239,68,68,0.1)', borderRadius: '4px' }}>{error}</div>}
                         <form onSubmit={handleCreateCase} className="flex flex-col gap-6">
@@ -355,8 +355,8 @@ const Cases = () => {
 
             {/* DETAILS MODAL */}
             {selectedCase && (
-                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 500 }}>
-                    <div className="modal-sheet flex flex-col gap-6" style={{ width: '100%', maxWidth: '900px' }}>
+                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 500, padding: '2rem' }}>
+                    <div className="modal-card flex flex-col gap-6" style={{ width: '100%', maxWidth: '900px', padding: '1.5rem' }}>
                         <div className="flex justify-between items-center" style={{ borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
                             <div>
                                 <h3 style={{ margin: 0 }}>{t('cases.cardTitle')} <span className="badge badge-neutral">#{selectedCase.id}</span></h3>
@@ -450,8 +450,8 @@ const Cases = () => {
 
             {/* PAYMENT MODAL */}
             {paymentModal && (
-                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 600 }}>
-                    <div className="modal-sheet" style={{ width: '100%' }}>
+                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 600, padding: '2rem' }}>
+                    <div className="modal-card" style={{ width: '400px', padding: '1.5rem' }}>
                         <h3 style={{ marginTop: 0, marginBottom: '1.5rem' }}>{t('cases.paymentTitle')}</h3>
                         <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>{t('cases.paymentDebt')}: <strong style={{ color: 'var(--danger)' }}>{formatCurrency(paymentModal.maxAmount)}</strong></p>
                         <div className="input-group">
