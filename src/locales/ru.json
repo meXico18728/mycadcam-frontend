@@ -11,7 +11,8 @@
             "users": "Сотрудники",
             "settings": "Настройки",
             "logout": "Выйти",
-            "nav": "Навигация"
+            "nav": "Навигация",
+            "crm": "CRM"
         },
         "settings": {
             "title": "Настройки",
@@ -127,7 +128,7 @@
             "subtitle": "Перетаскивайте карточки заданий между колонками для смены этапа работы.",
             "colNew": "Новые",
             "colModeling": "Моделирование",
-            "colProcessing": "В работе",
+            "colProcessing": "Обработка",
             "colReady": "Готово",
             "filterAll": "Все",
             "filterToday": "Сегодня",
@@ -135,7 +136,10 @@
             "filterMonth": "Месяц",
             "delayAlert": "{{count}} заказ(ов) задерживается в одном статусе!",
             "delayDays": "{{days}} дн.",
-            "more": "ещё"
+            "more": "ещё",
+            "colMilling": "Фрезерование",
+            "colSintering": "Спекание",
+            "colFitting": "Примерка"
         },
         "prices": {
             "title": "Прайс-лист и Виды работ",
@@ -262,8 +266,11 @@
         "statuses": {
             "new": "Новый",
             "modeling": "Моделирование",
-            "processing": "В работе",
-            "ready": "Готов"
+            "processing": "В обработке",
+            "ready": "Готово",
+            "milling": "Фрезерование",
+            "sintering": "Спекание",
+            "fitting": "Примерка"
         },
         "roles": {
             "admin": "Администратор",

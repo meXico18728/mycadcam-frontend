@@ -11,6 +11,7 @@ import Settings from './pages/Settings';
 import Prices from './pages/Prices';
 import Finances from './pages/Finances';
 import Users from './pages/Users';
+import CRM from './pages/CRM';
 import './index.css';
 
 const ProtectedRoute = ({ children }) => {
@@ -109,6 +110,14 @@ const AppContent = () => {
         element={
           <ProtectedRoute>
             <Users />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/crm"
+        element={
+          <ProtectedRoute>
+            <CRM />
           </ProtectedRoute>
         }
       />

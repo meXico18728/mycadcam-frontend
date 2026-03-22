@@ -11,7 +11,8 @@
             "users": "Staff",
             "settings": "Settings",
             "logout": "Logout",
-            "nav": "Navigation"
+            "nav": "Navigation",
+            "crm": "CRM"
         },
         "settings": {
             "title": "Settings",
@@ -127,7 +128,7 @@
             "subtitle": "Drag cards between columns to change the work stage.",
             "colNew": "New",
             "colModeling": "Modeling",
-            "colProcessing": "In Progress",
+            "colProcessing": "Processing",
             "colReady": "Ready",
             "filterAll": "All",
             "filterToday": "Today",
@@ -135,7 +136,10 @@
             "filterMonth": "Month",
             "delayAlert": "{{count}} case(s) are stuck in one status!",
             "delayDays": "{{days}} d.",
-            "more": "more"
+            "more": "more",
+            "colMilling": "Milling",
+            "colSintering": "Sintering",
+            "colFitting": "Fitting"
         },
         "prices": {
             "title": "Price List & Work Types",
@@ -262,8 +266,11 @@
         "statuses": {
             "new": "New",
             "modeling": "Modeling",
-            "processing": "In Progress",
-            "ready": "Ready"
+            "processing": "Processing",
+            "ready": "Ready",
+            "milling": "Milling",
+            "sintering": "Sintering",
+            "fitting": "Fitting"
         },
         "roles": {
             "admin": "Administrator",

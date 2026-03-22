@@ -27,7 +27,7 @@ const Dashboard = () => {
             const debt = Math.max(0, (c.totalCost || 0) - (c.paidAmount || 0));
             if (c.status !== 'ready') {
                 if (c.status === 'new') newC++;
-                if (c.status === 'modeling' || c.status === 'processing') inProgC++;
+                if (['modeling', 'milling', 'sintering', 'fitting'].includes(c.status)) inProgC++;
                 totalDebt += debt;
             }
             totalPaid += c.paidAmount || 0;
@@ -66,7 +66,9 @@ const Dashboard = () => {
         const map = {
             new: <span className="badge badge-neutral">{t('statuses.new')}</span>,
             modeling: <span className="badge badge-warning">{t('statuses.modeling')}</span>,
-            processing: <span className="badge badge-warning">{t('statuses.processing')}</span>,
+            milling: <span className="badge badge-warning">{t('statuses.milling')}</span>,
+            sintering: <span className="badge badge-warning">{t('statuses.sintering')}</span>,
+            fitting: <span className="badge badge-info">{t('statuses.fitting')}</span>,
             ready: <span className="badge badge-success">{t('statuses.ready')}</span>,
         };
         return map[status] || <span className="badge badge-neutral">{status}</span>;
@@ -124,7 +126,7 @@ const Dashboard = () => {
             </div>
 
             {/* KPI CARDS */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
                 <div className="card" style={{ borderTop: '4px solid var(--primary)', textAlign: 'center', padding: '1.5rem' }}>
                     <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🆕</div>
                     <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '0.25rem' }}>{t('dashboard.newCases')}</div>

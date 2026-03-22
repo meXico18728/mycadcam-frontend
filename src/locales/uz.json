@@ -11,7 +11,8 @@
             "users": "Xodimlar",
             "settings": "Sozlamalar",
             "logout": "Chiqish",
-            "nav": "Navigatsiya"
+            "nav": "Navigatsiya",
+            "crm": "CRM"
         },
         "settings": {
             "title": "Sozlamalar",
@@ -127,7 +128,7 @@
             "subtitle": "Ish bosqichini o'zgartirish uchun kartalarni ustunlar o'rtasida torting.",
             "colNew": "Yangi",
             "colModeling": "Modellashtirish",
-            "colProcessing": "Ishlanmoqda",
+            "colProcessing": "Jarayonda",
             "colReady": "Tayyor",
             "filterAll": "Barchasi",
             "filterToday": "Bugun",
@@ -135,7 +136,10 @@
             "filterMonth": "Oy",
             "delayAlert": "{{count}} ta buyurtma bir statusda qolib ketdi!",
             "delayDays": "{{days}} kun",
-            "more": "yana"
+            "more": "yana",
+            "colMilling": "Freza",
+            "colSintering": "Pishirish",
+            "colFitting": "Qo'yib ko'rish"
         },
         "prices": {
             "title": "Narxlar va ish turlari",
@@ -262,8 +266,11 @@
         "statuses": {
             "new": "Yangi",
             "modeling": "Modellashtirish",
-            "processing": "Ishlanmoqda",
-            "ready": "Tayyor"
+            "processing": "Jarayonda",
+            "ready": "Tayyor",
+            "milling": "Freza",
+            "sintering": "Pishirish",
+            "fitting": "Qo'yib ko'rish"
         },
         "roles": {
             "admin": "Administrator",

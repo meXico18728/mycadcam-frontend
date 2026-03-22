@@ -28,7 +28,9 @@ function getCategoryColor(typeName) {
 const STATUS_COLUMNS = [
     { id: 'new', titleKey: 'kanban.colNew' },
     { id: 'modeling', titleKey: 'kanban.colModeling' },
-    { id: 'processing', titleKey: 'kanban.colProcessing' },
+    { id: 'milling', titleKey: 'kanban.colMilling' },
+    { id: 'sintering', titleKey: 'kanban.colSintering' },
+    { id: 'fitting', titleKey: 'kanban.colFitting' },
     { id: 'ready', titleKey: 'kanban.colReady' }
 ];
 
