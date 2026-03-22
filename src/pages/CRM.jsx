@@ -114,7 +114,7 @@ const CRM = () => {
                 report: '/api/crm/report',
             };
             const res = await fetch(`${S}${endpointMap[tabId]}`, { headers });
-            if (res.ok) setData(prev => ({ ...prev, [tabId]: await res.json() }));
+            if (res.ok) { const json = await res.json(); setData(prev => ({ ...prev, [tabId]: json })); }
         } catch (err) { console.error(err); }
         finally { setLoading(false); }
     }, [S]);
@@ -375,7 +375,7 @@ const CRM = () => {
             if (reportFrom) params.set('from', reportFrom);
             if (reportTo) params.set('to', reportTo);
             const res = await fetch(`${S}/api/crm/report?${params}`, { headers });
-            if (res.ok) setData(prev => ({ ...prev, report: await res.json() }));
+            if (res.ok) { const json = await res.json(); setData(prev => ({ ...prev, report: json })); }
         } catch (err) { console.error(err); }
         finally { setLoading(false); }
     };
