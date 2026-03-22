@@ -4,61 +4,28 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SyncStatus from './SyncStatus';
 
-async function haptic() {
-    try {
-        const { Haptics } = await import('@capacitor/haptics');
-        await Haptics.impact({ style: 'LIGHT' });
-    } catch {}
-}
-
-async function setupBackButton(navigate, pathname) {
-    try {
-        const { App } = await import('@capacitor/app');
-        const handle = App.addListener('backButton', () => {
-            if (pathname === '/dashboard') App.exitApp();
-            else navigate(-1);
-        });
-        return () => handle.then(h => h.remove()).catch(() => {});
-    } catch {
-        return () => {};
-    }
-}
-
 const Layout = ({ children }) => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const { t } = useTranslation();
-    const [menuOpen, setMenuOpen] = useState(false);
+    const [collapsed, setCollapsed] = useState(false);
 
+    // Persist sidebar state
     useEffect(() => {
-        let cleanup = () => {};
-        setupBackButton(navigate, location.pathname).then(fn => { cleanup = fn; });
-        return () => cleanup();
-    }, [navigate, location.pathname]);
-
-    useEffect(() => { setMenuOpen(false); }, [location.pathname]);
-
-    useEffect(() => {
-        document.body.style.overflow = menuOpen ? 'hidden' : '';
-        return () => { document.body.style.overflow = ''; };
-    }, [menuOpen]);
-
-    const handleLogout = async () => {
-        await haptic();
-        logout();
-        navigate('/login');
+        const saved = localStorage.getItem('sidebar_collapsed');
+        if (saved === 'true') setCollapsed(true);
+    }, []);
+    const toggleSidebar = () => {
+        setCollapsed(c => {
+            localStorage.setItem('sidebar_collapsed', String(!c));
+            return !c;
+        });
     };
 
-    const allTabs = [
-        { label: t('sidebar.dashboard'), path: '/dashboard', icon: '📊', roles: ['admin', 'doctor', 'tech', 'accountant'] },
-        { label: t('sidebar.cases'),     path: '/cases',     icon: '📋', roles: ['admin', 'doctor', 'tech'] },
-        { label: t('sidebar.kanban'),    path: '/kanban',    icon: '🔲', roles: ['admin', 'doctor', 'tech'] },
-        { label: t('sidebar.crm'),       path: '/crm',       icon: '🦷', roles: ['admin', 'doctor', 'accountant'] },
-        { label: 'Ещё',                  path: '__more__',   icon: '☰',  roles: ['admin', 'doctor', 'tech', 'accountant'] },
-    ];
+    const handleLogout = () => { logout(); navigate('/login'); };
 
-    const allMenuItems = [
+    const menuItems = [
         { label: t('sidebar.dashboard'), path: '/dashboard', icon: '📊', roles: ['admin', 'doctor', 'tech', 'accountant'] },
         { label: t('sidebar.patients'),  path: '/patients',  icon: '👥', roles: ['admin', 'doctor'] },
         { label: t('sidebar.cases'),     path: '/cases',     icon: '📋', roles: ['admin', 'doctor', 'tech'] },
@@ -71,86 +38,95 @@ const Layout = ({ children }) => {
         { label: t('sidebar.settings'),  path: '/settings',  icon: '⚙️', roles: ['admin', 'doctor', 'tech', 'accountant'] },
     ];
 
-    const visibleTabs = allTabs.filter(tab => tab.roles.includes(user?.role));
-    const visibleMenu = allMenuItems.filter(item => item.roles.includes(user?.role));
-    const isActive = (path) => path !== '__more__' && location.pathname.startsWith(path);
-
-    const handleTab = async (tab) => {
-        await haptic();
-        if (tab.path === '__more__') setMenuOpen(true);
-        else navigate(tab.path);
-    };
-
-    const handleMenuNav = async (path) => {
-        await haptic();
-        setMenuOpen(false);
-        navigate(path);
-    };
+    const visible = menuItems.filter(item => item.roles.includes(user?.role));
 
     return (
-        <div className="android-layout">
-            <header className="android-header">
-                <div className="android-header-inner">
-                    <h2 className="android-header-title">
-                        MyCadCam <span className="android-header-sub">Lab</span>
-                    </h2>
-                    <div className="android-header-right">
-                        <SyncStatus />
-                    </div>
-                </div>
-            </header>
-
-            <main className="android-main">
-                <div className="android-content">{children}</div>
-            </main>
-
-            <nav className="android-bottom-nav">
-                {visibleTabs.map(tab => (
-                    <button
-                        key={tab.path}
-                        className={`android-tab ${isActive(tab.path) ? 'active' : ''}`}
-                        onClick={() => handleTab(tab)}
-                        aria-label={tab.label}
-                    >
-                        <span className="android-tab-icon">{tab.icon}</span>
-                        <span className="android-tab-label">{tab.label}</span>
+        <div className={`desktop-layout ${collapsed ? 'sidebar-collapsed' : ''}`}>
+            {/* ── Sidebar ── */}
+            <aside className="desktop-sidebar">
+                {/* Logo */}
+                <div className="sidebar-logo">
+                    <span className="sidebar-logo-icon">🦷</span>
+                    {!collapsed && (
+                        <div className="sidebar-logo-text">
+                            <span className="sidebar-logo-name">MyCadCam</span>
+                            <span className="sidebar-logo-sub">Lab</span>
+                        </div>
+                    )}
+                    <button className="sidebar-toggle" onClick={toggleSidebar} title={collapsed ? 'Развернуть' : 'Свернуть'}>
+                        {collapsed ? '›' : '‹'}
                     </button>
-                ))}
-            </nav>
+                </div>
 
-            {menuOpen && (
-                <>
-                    <div className="sheet-overlay" onClick={() => setMenuOpen(false)} />
-                    <div className="sheet">
-                        <div className="sheet-handle" />
-                        <div className="sheet-user">
-                            <div className="sheet-avatar">{user?.name?.[0]?.toUpperCase() || '?'}</div>
-                            <div>
-                                <div className="sheet-user-name">{user?.name}</div>
-                                <div className="sheet-user-role">{t(`roles.${user?.role}`) || user?.role}</div>
+                {/* Nav */}
+                <nav className="sidebar-nav">
+                    {!collapsed && (
+                        <div className="sidebar-section-label">{t('sidebar.nav')}</div>
+                    )}
+                    {visible.map(item => {
+                        const active = location.pathname.startsWith(item.path);
+                        return (
+                            <button
+                                key={item.path}
+                                className={`sidebar-item ${active ? 'active' : ''}`}
+                                onClick={() => navigate(item.path)}
+                                title={collapsed ? item.label : ''}
+                            >
+                                <span className="sidebar-item-icon">{item.icon}</span>
+                                {!collapsed && <span className="sidebar-item-label">{item.label}</span>}
+                                {active && !collapsed && <span className="sidebar-item-dot" />}
+                            </button>
+                        );
+                    })}
+                </nav>
+
+                {/* User footer */}
+                <div className="sidebar-footer">
+                    {!collapsed ? (
+                        <>
+                            <div className="sidebar-user">
+                                <div className="sidebar-avatar">{user?.name?.[0]?.toUpperCase()}</div>
+                                <div className="sidebar-user-info">
+                                    <div className="sidebar-user-name">{user?.name}</div>
+                                    <div className="sidebar-user-role">{t(`roles.${user?.role}`) || user?.role}</div>
+                                </div>
                             </div>
-                        </div>
-                        <div className="sheet-menu">
-                            {visibleMenu.map(item => (
-                                <button
-                                    key={item.path}
-                                    className={`sheet-item ${location.pathname.startsWith(item.path) ? 'active' : ''}`}
-                                    onClick={() => handleMenuNav(item.path)}
-                                >
-                                    <span className="sheet-item-icon">{item.icon}</span>
-                                    <span className="sheet-item-label">{item.label}</span>
-                                    {location.pathname.startsWith(item.path) && <span className="sheet-item-check">✓</span>}
-                                </button>
-                            ))}
-                        </div>
-                        <div className="sheet-footer">
-                            <button className="sheet-logout" onClick={handleLogout}>
+                            <button className="sidebar-logout" onClick={handleLogout}>
                                 🚪 {t('sidebar.logout')}
                             </button>
+                        </>
+                    ) : (
+                        <button className="sidebar-item" onClick={handleLogout} title={t('sidebar.logout')}>
+                            <span className="sidebar-item-icon">🚪</span>
+                        </button>
+                    )}
+                </div>
+            </aside>
+
+            {/* ── Main area ── */}
+            <div className="desktop-main-wrap">
+                {/* Topbar */}
+                <header className="desktop-topbar">
+                    <div className="topbar-left">
+                        <h2 className="topbar-title">
+                            {visible.find(i => location.pathname.startsWith(i.path))?.label || 'MyCadCam'}
+                        </h2>
+                    </div>
+                    <div className="topbar-right">
+                        <SyncStatus />
+                        <div className="topbar-user">
+                            <div className="topbar-avatar">{user?.name?.[0]?.toUpperCase()}</div>
+                            <span className="topbar-username">{user?.name}</span>
+                            <span className="topbar-role-badge">{t(`roles.${user?.role}`) || user?.role}</span>
                         </div>
                     </div>
-                </>
-            )}
+                </header>
+
+                {/* Page content */}
+                <main className="desktop-content">
+                    {children}
+                </main>
+            </div>
         </div>
     );
 };
