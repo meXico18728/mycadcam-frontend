@@ -1,22 +1,24 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-
+ 
 export default defineConfig({
   plugins: [react()],
-  base: './',  // CRITICAL for Capacitor Android — assets must use relative paths
+  base: './',
   build: {
     outDir: 'dist',
-    sourcemap: false,
+    // Tell Vite/rolldown to treat all @capacitor/* as external —
+    // they exist only in native Android runtime, not on the web
     rollupOptions: {
+      external: (id) => id.startsWith('@capacitor/'),
       output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) return 'vendor';
-            if (id.includes('recharts')) return 'charts';
-            if (id.includes('i18next')) return 'i18n';
-          }
+        // Stub externals so the app doesn't crash when they're missing
+        globals: (id) => {
+          if (id.startsWith('@capacitor/')) return '{}';
+          return id;
         }
       }
-    }
+    },
+    chunkSizeWarningLimit: 1500
   }
 })
+ 
